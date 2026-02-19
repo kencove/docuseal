@@ -14,8 +14,13 @@ Rails.application.routes.draw do
   get 'up' => 'rails/health#show'
   get 'manifest' => 'pwa#manifest'
 
-  devise_for :users, path: '/', only: %i[sessions passwords],
-                     controllers: { sessions: 'sessions', passwords: 'passwords' }
+  devise_modules = %i[sessions passwords]
+  devise_controllers = { sessions: 'sessions', passwords: 'passwords' }
+  if ENV['GOOGLE_CLIENT_ID'].present?
+    devise_modules << :omniauth_callbacks
+    devise_controllers[:omniauth_callbacks] = 'omniauth_callbacks'
+  end
+  devise_for :users, path: '/', only: devise_modules, controllers: devise_controllers
 
   devise_scope :user do
     resource :invitation, only: %i[update] do
@@ -160,6 +165,7 @@ Rails.application.routes.draw do
   resources :submitters, only: %i[], param: 'slug' do
     resources :download, only: %i[index], controller: 'submissions_download'
     resources :send_email, only: %i[create], controller: 'submitters_send_email'
+    resources :send_sms, only: %i[create], controller: 'submitters_send_sms'
     resources :debug, only: %i[index], controller: 'submissions_debug' if Rails.env.development?
   end
 
@@ -167,7 +173,7 @@ Rails.application.routes.draw do
     unless Docuseal.multitenant?
       resources :storage, only: %i[index create], controller: 'storage_settings'
       resources :search_entries_reindex, only: %i[create]
-      resources :sms, only: %i[index], controller: 'sms_settings'
+      resources :sms, only: %i[index create], controller: 'sms_settings'
     end
     if Docuseal.demo? || !Docuseal.multitenant?
       resources :api, only: %i[index create], controller: 'api_settings'

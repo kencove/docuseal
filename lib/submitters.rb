@@ -169,14 +169,22 @@ module Submitters
 
   def send_signature_requests(submitters, delay_seconds: nil)
     submitters.each_with_index do |submitter, index|
-      next if submitter.email.blank?
+      if submitter.email.present? && !submitter.declined_at? && submitter.preferences['send_email'] != false
+        if delay_seconds
+          SendSubmitterInvitationEmailJob.perform_in((delay_seconds + index).seconds, 'submitter_id' => submitter.id)
+        else
+          SendSubmitterInvitationEmailJob.perform_async('submitter_id' => submitter.id)
+        end
+      end
+
+      next if submitter.phone.blank?
       next if submitter.declined_at?
-      next if submitter.preferences['send_email'] == false
+      next if submitter.preferences['send_sms'] == false
 
       if delay_seconds
-        SendSubmitterInvitationEmailJob.perform_in((delay_seconds + index).seconds, 'submitter_id' => submitter.id)
+        SendSubmitterInvitationSmsJob.perform_in((delay_seconds + index).seconds, 'submitter_id' => submitter.id)
       else
-        SendSubmitterInvitationEmailJob.perform_async('submitter_id' => submitter.id)
+        SendSubmitterInvitationSmsJob.perform_async('submitter_id' => submitter.id)
       end
     end
   end
@@ -236,7 +244,7 @@ module Submitters
 
     TemplateMailer.otp_verification_email(submitter.submission.template, email: submitter.email).deliver_later!
   rescue RateLimit::LimitApproached
-    Rollbar.warning("Limit verification code for template: #{submitter.submission.template.id}") if defined?(Rollbar)
+    Rails.logger.warn("Limit verification code for template: #{submitter.submission.template.id}")
 
     raise UnableToSendCode, I18n.t('too_many_attempts')
   end

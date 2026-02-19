@@ -173,6 +173,8 @@ en: &en
   sign_in: Sign In
   signing_in: Signing In
   sign_in_with_microsoft: Sign in with Microsoft
+  user_not_found: User not found. Please contact your administrator.
+  authentication_failed: Authentication failed. Please try again.
   sign_in_with_google: Sign in with Google
   forgot_your_password_: Forgot your password?
   create_free_account: Create free account
@@ -351,6 +353,8 @@ en: &en
   but_not_activated: but not activated
   email_has_been_sent: Email has been sent.
   email_has_been_sent_already: Email has been sent already.
+  sms_has_been_sent: SMS has been sent.
+  sms_has_been_sent_already: SMS has been sent already.
   initial_setup: Initial Setup
   demo_environment: Demo Environment
   close: Close
@@ -642,6 +646,8 @@ en: &en
   send_email_copy_with_completed_documents_to_a_specified_bcc_address: Send email copy with completed documents to a specified BCC address.
   re_send_email: Re-send Email
   send_email: Send Email
+  re_send_sms: Re-send SMS
+  send_sms: Send SMS
   copy_share_link: Copy Share Link
   copied_to_clipboard: Copied to Clipboard
   link: Link
@@ -703,6 +709,12 @@ en: &en
   key: Key
   value: Value
   webhook_secret: Webhook Secret
+  signature_verification: Signature Verification
+  all_webhook_requests_are_signed_with_hmac_sha256: All webhook requests are signed with HMAC-SHA256. Use the signing key below to verify authenticity.
+  signing_key: Signing Key
+  regenerate: Regenerate
+  verification_example: Verification example
+  custom_header: Custom Header
   author: Author
   to: To
   created_at: Created at

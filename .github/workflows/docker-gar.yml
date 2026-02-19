@@ -1,0 +1,48 @@
+name: Build and Push to Google Artifact Registry
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+    branches:
+      - kencove
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Authenticate to Google Cloud
+      id: auth
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+        service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Determine image tag
+      id: tag
+      run: |
+        if [[ "${{ github.ref_type }}" == "tag" ]]; then
+          echo "img_tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+        else
+          echo "img_tag=$(echo ${{ github.sha }} | cut -c1-8)" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Trigger Cloud Build
+      run: |
+        gcloud builds submit \
+          --config=cloudbuild.yaml \
+          --project=kencove-prod \
+          --substitutions=_IMG_TAG=${{ steps.tag.outputs.img_tag }} \
+          --async

@@ -1,5 +1,5 @@
-<div class="mt-2 mb-1">
-  <div class="tooltip w-full" data-tip="<%= t('unlock_with_docuseal_pro') %>">
-    <%= link_to submitter.sent_at? ? t('re_send_sms') : t('send_sms'), Docuseal.multitenant? ? console_redirect_index_path(redir: "#{Docuseal::CONSOLE_URL}/plans") : "#{Docuseal::CLOUD_URL}/sign_up?#{{ redir: "#{Docuseal::CONSOLE_URL}/on_premises" }.to_query}", class: 'btn btn-sm btn-primary text-gray-400 w-full' %>
+<% if Accounts.can_send_sms?(submitter.account) %>
+  <div class="mt-2 mb-1">
+    <%= button_to button_title(title: submitter.sent_at? ? t('re_send_sms') : t('send_sms'), disabled_with: t('sending')), submitter_send_sms_index_path(submitter_slug: submitter.slug), class: 'btn btn-sm btn-primary w-full' %>
   </div>
-</div>
+<% end %>

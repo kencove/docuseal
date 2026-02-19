@@ -4,7 +4,7 @@ Devise.otp_allowed_drift = 60.seconds
 
 class FailureApp < Devise::FailureApp
   def respond
-    Rollbar.warning('Invalid password') if defined?(Rollbar) && warden_message == :invalid
+    Rails.logger.warn('Invalid password') if warden_message == :invalid
 
     super
   end
@@ -333,6 +333,16 @@ Devise.setup do |config|
   # When set to false, does not sign a user in automatically after their password is
   # changed. Defaults to true, so a user is signed in automatically after changing a password.
   # config.sign_in_after_change_password = true
+
+  if ENV['GOOGLE_CLIENT_ID'].present?
+    oauth_opts = {}
+    oauth_opts[:hd] = ENV['GOOGLE_ALLOWED_DOMAIN'] if ENV['GOOGLE_ALLOWED_DOMAIN'].present?
+
+    config.omniauth :google_oauth2,
+                    ENV.fetch('GOOGLE_CLIENT_ID'),
+                    ENV.fetch('GOOGLE_CLIENT_SECRET'),
+                    oauth_opts
+  end
 
   ActiveSupport.run_load_hooks(:devise_config, config)
 end
