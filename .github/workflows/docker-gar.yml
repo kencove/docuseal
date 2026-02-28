@@ -3,9 +3,7 @@ name: Build and Push to Google Artifact Registry
 on:
   push:
     tags:
-      - "*.*.*"
-    branches:
-      - feature/google-oauth-login
+      - "v*.*.*"
 
 permissions:
   contents: read
@@ -23,11 +21,15 @@ jobs:
         submodules: recursive
 
     - name: Create .version file
+      env:
+        REF_TYPE: ${{ github.ref_type }}
+        REF_NAME: ${{ github.ref_name }}
+        COMMIT_SHA: ${{ github.sha }}
       run: |
-        if [[ "${{ github.ref_type }}" == "tag" ]]; then
-          echo "${{ github.ref_name }}" > .version
+        if [[ "${REF_TYPE}" == "tag" ]]; then
+          echo "${REF_NAME}" > .version
         else
-          echo "${{ github.sha }}" > .version
+          echo "${COMMIT_SHA}" > .version
         fi
 
     - name: Authenticate to Google Cloud
