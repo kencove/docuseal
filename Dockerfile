@@ -99,4 +99,6 @@ ENV HOME=/home/docuseal
 ENV WORKDIR=/data/docuseal
 
 EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD wget -qO /dev/null http://localhost:3000/up || exit 1
 CMD ["/app/bin/bundle", "exec", "puma", "-C", "/app/config/puma.rb", "--dir", "/app"]

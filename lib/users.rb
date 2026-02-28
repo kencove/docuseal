@@ -31,6 +31,13 @@ module Users
 
     role = ENV.fetch('GOOGLE_AUTO_CREATE_ROLE', User::ADMIN_ROLE)
 
+    unless role.in?(User::ROLES)
+      Rails.logger.warn("OAuth auto-create: unknown role '#{role}', falling back to '#{User::ADMIN_ROLE}'")
+      role = User::ADMIN_ROLE
+    end
+
+    Rails.logger.info("OAuth auto-create: creating user #{email} with role '#{role}'")
+
     account.users.create!(
       email:,
       first_name: oauth.info.first_name.to_s,
