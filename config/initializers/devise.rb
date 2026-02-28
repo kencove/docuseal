@@ -338,7 +338,7 @@ Devise.setup do |config|
     config.omniauth :google_oauth2,
                     ENV.fetch('GOOGLE_CLIENT_ID'),
                     ENV.fetch('GOOGLE_CLIENT_SECRET'),
-                    { hd: 'kencove.com' }
+                    { hd: ENV.fetch('GOOGLE_HOSTED_DOMAIN', 'kencove.com') }
   end
 
   ActiveSupport.run_load_hooks(:devise_config, config)
