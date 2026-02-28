@@ -29,7 +29,6 @@
 yarn-debug.log*
 .yarn-integrity
 
-.env
 .DS_Store
 
 /coverage
@@ -38,3 +37,4 @@ yarn-debug.log*
 /ee
 dump.rdb
 *.onnx
+config.bat

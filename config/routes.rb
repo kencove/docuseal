@@ -14,8 +14,15 @@ Rails.application.routes.draw do
   get 'up' => 'rails/health#show'
   get 'manifest' => 'pwa#manifest'
 
-  devise_for :users, path: '/', only: %i[sessions passwords],
-                     controllers: { sessions: 'sessions', passwords: 'passwords' }
+  devise_actions = %i[sessions passwords]
+  devise_controllers = { sessions: 'sessions', passwords: 'passwords' }
+
+  if ENV['GOOGLE_CLIENT_ID'].present?
+    devise_actions << :omniauth_callbacks
+    devise_controllers[:omniauth_callbacks] = 'omniauth_callbacks'
+  end
+
+  devise_for :users, path: '/', only: devise_actions, controllers: devise_controllers
 
   devise_scope :user do
     resource :invitation, only: %i[update] do
